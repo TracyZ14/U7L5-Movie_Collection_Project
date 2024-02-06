@@ -171,7 +171,7 @@ public class MovieCollection
         {
             String movieCast = movies.get(i).getCast();
             movieCast = movieCast.toLowerCase();
-            if(movieCast.indexOf(searchTerm) != -1)
+            if(movieCast.contains(searchTerm))
             {
                 results.add(movies.get(i));
             }
@@ -179,25 +179,71 @@ public class MovieCollection
         ArrayList<String> cast = new ArrayList<String>();
         for(int i = 0; i < results.size(); i++)
         {
-            String[] castMembers = results.get(i).getCast().split("|");
+            String[] castMembers = results.get(i).getCast().split("\\|");
             for(int j = 0; j < castMembers.length; j++)
             {
                 String name = castMembers[j];
                 name = name.toLowerCase();
-                if(name.indexOf(searchTerm) != -1)
+                if(name.contains(searchTerm))
                 {
-                    
+                    cast.add(castMembers[j]);
                 }
             }
+        }
+        for(int i = (cast.size() - 1); i >= 0; i--)
+        {
+            for(int j = 0; j < i; j++)
+            {
+                if(cast.get(i).equals(cast.get(j)))
+                {
+                    cast.remove(i);
+                    j = i;
+                }
+            }
+        }
+        for(int i = 1; i < cast.size(); i++)
+        {
+            String tempCast = cast.get(i);
+            int possibleIndex = i;
+            while((possibleIndex > 0) && (tempCast.compareTo(cast.get(possibleIndex - 1)) < 0))
+            {
+                cast.set(possibleIndex, cast.get(possibleIndex - 1));
+                possibleIndex--;
+            }
+            cast.set(possibleIndex, tempCast);
+        }
+        for(int i = 0; i < cast.size(); i++)
+        {
+            String castName = cast.get(i);
+            int choiceNum = i + 1;
+            System.out.println("" + choiceNum + ". " + castName);
         }
         System.out.println("Which cast member would you like to learn more about?");
         System.out.print("Enter number: ");
         int choice = scanner.nextInt();
         scanner.nextLine();
+        ArrayList<Movie> castMovie = new ArrayList<Movie>();
+        String selectedCast = cast.get(choice - 1);
+        for(int i = 0; i < movies.size(); i++)
+        {
+            if(movies.get(i).getCast().contains(selectedCast))
+            {
+                castMovie.add(movies.get(i));
+            }
+        }
+        sortResults(castMovie);
+        for(int i = 0; i < castMovie.size(); i++)
+        {
+            String title = results.get(i).getTitle();
+            int choiceNum = i + 1;
+            System.out.println("" + choiceNum + ". " + title);
+        }
         System.out.println("Which movie would you like to learn more about?");
         System.out.print("Enter number: ");
         int choice2 = scanner.nextInt();
         scanner.nextLine();
+        Movie selectedMovie = castMovie.get(choice - 1);
+        displayMovieInfo(selectedMovie);
         System.out.println("\n ** Press Enter to Return to Main Menu **");
         scanner.nextLine();
     }
